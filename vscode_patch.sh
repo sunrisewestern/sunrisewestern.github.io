@@ -56,9 +56,8 @@ install_vscode_server() {
   # Use curl with options for safety and robust download.
   # -S: Show error if curl fails silently.
   # -L: Follow redirects.
-  # --fail-with-body: Fail silently but include response body in output for debugging.
   # -o: Write output to a local file.
-  if ! curl -sSL --fail-with-body "${download_url}" -o "${tarball_path}"; then
+  if ! curl -sSL "${download_url}" -o "${tarball_path}"; then
     log_error "Failed to download VS Code Server. Check the version or URL."
   fi
 
