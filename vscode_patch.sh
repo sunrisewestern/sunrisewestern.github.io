@@ -25,7 +25,6 @@ fi
 # --- Global Variables ---
 readonly VSCODE_SERVER_BASE_URL="https://github.com/MikeWang000000/vscode-server-centos7/releases/download"
 readonly TMP_DIR="/tmp"
-readonly VSCODE_INSTALL_DIR="$HOME/.vscode-server"
 
 # --- Functions ---
 
@@ -41,11 +40,13 @@ log_info() {
 }
 
 # Main installation logic.
+# Takes version as the first argument and an optional installation directory as the second argument.
 install_vscode_server() {
   local version="$1" # Use local variables in functions. [5]
+  local vscode_install_dir="${2:-$HOME/.vscode-server}" # Default to $HOME/.vscode-server if not provided.
 
   if [[ -z "$version" ]]; then
-    log_error "VS Code Server version not provided. Usage: $0 <VERSION>"
+    log_error "VS Code Server version not provided. Usage: $0 <VERSION> [INSTALL_DIR]"
   fi
 
   local download_url="${VSCODE_SERVER_BASE_URL}/${version}/vscode-server_${version}_x64.tar.gz"
@@ -61,11 +62,11 @@ install_vscode_server() {
     log_error "Failed to download VS Code Server. Check the version or URL."
   fi
 
-  log_info "Creating installation directory: ${VSCODE_INSTALL_DIR}"
-  mkdir -p "${VSCODE_INSTALL_DIR}" || log_error "Failed to create installation directory."
+  log_info "Creating installation directory: ${vscode_install_dir}"
+  mkdir -p "${vscode_install_dir}" || log_error "Failed to create installation directory."
 
-  log_info "Extracting VS Code Server to ${VSCODE_INSTALL_DIR}"
-  if ! tar xzf "${tarball_path}" -C "${VSCODE_INSTALL_DIR}" --strip-components 1; then
+  log_info "Extracting VS Code Server to ${vscode_install_dir}"
+  if ! tar xzf "${tarball_path}" -C "${vscode_install_dir}" --strip-components 1; then
     log_error "Failed to extract VS Code Server archive."
   fi
 
@@ -74,10 +75,10 @@ install_vscode_server() {
 
   log_info "VS Code Server installation complete. Patching now..."
   # Ensure the directory exists before attempting to run.
-  if [[ -x "${VSCODE_INSTALL_DIR}/code-latest" ]]; then # Check if executable.
-    "${VSCODE_INSTALL_DIR}/code-latest" --patch-now || log_error "Failed to patch VS Code Server."
+  if [[ -x "${vscode_install_dir}/code-latest" ]]; then # Check if executable.
+    "${vscode_install_dir}/code-latest" --patch-now || log_error "Failed to patch VS Code Server."
   else
-    log_error "VS Code Server executable not found or not executable at ${VSCODE_INSTALL_DIR}/code-latest"
+    log_error "VS Code Server executable not found or not executable at ${vscode_install_dir}/code-latest"
   fi
 
   log_info "VS Code Server is ready!"
