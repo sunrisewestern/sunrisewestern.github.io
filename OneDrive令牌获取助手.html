@@ -1,212 +1,446 @@
 <!DOCTYPE html>
-<!-- saved from url=(0029)https://alist-api.666126.xyz/ -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style data-merge-styles="true"></style>
-    <style data-merge-styles="true"></style>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneDrive 令牌获取助手</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 20px auto; padding: 0 15px; background-color: #f8f9fa; color: #333; }
-        .container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        h1, h2 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        label { font-weight: bold; margin-top: 1rem; display: block; }
-        input, button, textarea { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        button { background-color: #007bff; color: white; border-color: #007bff; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
-        .results { margin-top: 2rem; border-top: 2px solid #eee; padding-top: 1rem; }
-        .step { margin-bottom: 2rem; }
-        .command-box { background-color: #282c34; color: #abb2bf; padding: 15px; border-radius: 5px; font-family: "Courier New", Courier, monospace; white-space: pre-wrap; word-wrap: break-word; position: relative; }
-        .copy-btn { position: absolute; top: 10px; right: 10px; background-color: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
-        .copy-btn:hover { background-color: #5a6268; }
-        .info { background-color: #e9f7fe; border-left: 5px solid #007bff; padding: 15px; margin: 15px 0; }
-        .code-inline { background-color: #e9ecef; padding: 2px 6px; border-radius: 3px; font-family: "Courier New", Courier, monospace; }
-        .tutorial { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0; }
-        .tutorial h3 { color: #495057; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-        .tutorial h3:first-child { margin-top: 0; }
-        .tutorial ol { padding-left: 1.5rem; }
-        .tutorial li { margin-bottom: 0.5rem; }
-        .warning { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin: 15px 0; }
-    </style>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OneDrive 令牌获取助手</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #d8dee8;
+      --primary: #0f6cbd;
+      --primary-hover: #0b5aa1;
+      --code-bg: #1e293b;
+      --code-text: #dbeafe;
+      --info-bg: #eef6ff;
+      --warn-bg: #fff7df;
+      --warn-line: #f5b942;
+      --ok-bg: #eaf8ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 24px auto 48px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      color: var(--primary);
+    }
+
+    h2 {
+      margin: 28px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: 22px;
+      color: var(--primary);
+    }
+
+    h3 {
+      margin: 20px 0 8px;
+      font-size: 17px;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 11px 12px;
+      font: inherit;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      outline: 3px solid rgba(15, 108, 189, 0.14);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    button {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .note,
+    .warning,
+    .success {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 5px solid var(--primary);
+      border-radius: 6px;
+      background: var(--info-bg);
+    }
+
+    .warning {
+      border-left-color: var(--warn-line);
+      background: var(--warn-bg);
+    }
+
+    .success {
+      display: none;
+      border-left-color: #2e8b57;
+      background: var(--ok-bg);
+    }
+
+    .code-inline {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #eef2f7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+
+    .command-box {
+      position: relative;
+      margin-top: 10px;
+      border-radius: 8px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow: hidden;
+    }
+
+    .command-box pre,
+    .command-box a {
+      display: block;
+      margin: 0;
+      padding: 48px 16px 16px;
+      color: var(--code-text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: auto;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 5px;
+      background: #475569;
+      font-size: 13px;
+    }
+
+    .copy-btn:hover {
+      background: #334155;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .actions button {
+      flex: 1;
+    }
+
+    .secondary {
+      border-color: var(--line);
+      background: #f8fafc;
+      color: var(--text);
+    }
+
+    .secondary:hover {
+      background: #eef2f7;
+    }
+
+    .results {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 20px, 920px);
+        margin-top: 10px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
-<body class="vsc-initialized">
+<body>
+  <main>
+    <section class="panel">
+      <h1>OneDrive 令牌获取助手</h1>
+      <p>输入自己的 Azure 应用信息后，页面会动态生成授权链接和交换 refresh token 的命令。所有内容只在本页面本地生成，不会上传。</p>
 
-    <div class="container" data-dashlane-rid="88226e02148cab89" data-dashlane-classification="other">
-        <h1>OneDrive 令牌获取助手</h1>
-        <p>本工具会引导您完成手动获取 Refresh Token 的所有步骤，全程保障您的凭据安全。</p>
-        
-        <div class="tutorial">
-            <h2>📋 应用注册教程</h2>
-            <p>在使用本工具之前，您需要先在 Microsoft Entra ID 中注册一个应用。请按照以下步骤操作：</p>
-            
-            <h3>1. 登录 Microsoft Entra ID 管理中心</h3>
-            <ol>
-                <li>访问 <a href="https://entra.microsoft.com/" target="_blank">Microsoft Entra 管理中心</a></li>
-                <li>使用你的 Microsoft 账户登录</li>
-            </ol>
-            
-            <h3>2. 注册新应用</h3>
-            <ol>
-                <li>在左侧导航栏中，依次选择「标识 (Identity)」&gt;「应用程序 (Applications)」&gt;「应用注册 (App registrations)」</li>
-                <li>点击「+ 新注册 (+ New registration)」</li>
-            </ol>
-            
-            <h3>3. 填写应用信息</h3>
-            <ol>
-                <li><strong>名称 (Name)：</strong>给你的应用取一个容易识别的名字，例如 <code class="code-inline">MyOneDriveTool</code></li>
-                <li><strong>支持的帐户类型 (Supported account types)：</strong>务必选择「任何组织目录(任何 Microsoft Entra ID 租户 - 多租户)中的帐户和个人 Microsoft 帐户(例如 Skype、Xbox)」</li>
-                <li><strong>重定向 URI (Redirect URI)：</strong>
-                    <ul>
-                        <li>选择平台为「Web」</li>
-                        <li>在 URL 输入框中填入 <code class="code-inline">http://localhost:53682/</code></li>
-                    </ul>
-                </li>
-                <li>点击「注册 (Register)」</li>
-            </ol>
-            
-            <h3>4. 获取 Client ID</h3>
-            <p>注册成功后，页面会跳转到应用的概述页。在这里你可以找到并复制「应用程序(客户端) ID (Application (client) ID)」，这就是你的 <code class="code-inline">client_id</code>。请妥善保存。</p>
-            
-            <h3>5. 创建 Client Secret</h3>
-            <ol>
-                <li>在应用页面的左侧导航栏，选择「证书和密码 (Certificates &amp; secrets)」</li>
-                <li>点击「+ 新客户端密码 (+ New client secret)」</li>
-                <li><strong>说明 (Description)：</strong>随意填写，例如 <code class="code-inline">mysecret</code></li>
-                <li><strong>过期 (Expires)：</strong>选择最长的时间，例如「24 个月 (24 months)」</li>
-                <li>点击「添加 (Add)」</li>
-            </ol>
-            
-            <div class="warning">
-                <strong>⚠️ 重要：</strong>此时页面会生成一个客户端密码，它的「值 (Value)」只会显示这一次。请立即复制并保存好，这就是你的 <code class="code-inline">client_secret</code>。关闭页面后将无法再次查看！
-            </div>
+      <div class="warning">
+        <strong>重要：</strong>Azure 应用注册里的重定向 URI 必须和下面填写的一致。默认使用 <code class="code-inline">http://localhost:53682/</code>。
+      </div>
+
+      <h2>应用信息</h2>
+      <label for="clientId">Client ID</label>
+      <input id="clientId" type="text" autocomplete="off" spellcheck="false" placeholder="粘贴 Application (client) ID">
+
+      <label for="clientSecret">Client Secret</label>
+      <input id="clientSecret" type="password" autocomplete="off" spellcheck="false" placeholder="粘贴 Client secret 的 Value">
+
+      <div class="grid">
+        <div>
+          <label for="tenant">Tenant</label>
+          <input id="tenant" type="text" autocomplete="off" spellcheck="false" value="common">
+          <p class="hint">个人账号通常用 <code class="code-inline">common</code>。</p>
         </div>
-        
-        <h2>🚀 开始获取令牌</h2>
-        <p>完成应用注册后，请在下方输入您获得的 Client ID 和 Client Secret：</p>
-        
-        <label for="clientId">Client ID:</label>
-        <input type="text" id="clientId" placeholder="在此处粘贴您的 Client ID" spellcheck="false" data-ms-editor="true" data-dashlane-rid="33648ea1f0e03b53" data-dashlane-classification="username" data-kwimpalastatus="alive" data-kwimpalaid="1750033443284-0" data-dashlane-filled-by-user="true">
-        
-        <label for="clientSecret">Client Secret:</label>
-        <input type="text" id="clientSecret" placeholder="在此处粘贴您的 Client Secret" spellcheck="false" data-ms-editor="true" data-dashlane-rid="14968a1afc40fa95" data-dashlane-classification="other">
-        
-        <div class="info">
-            <strong>⚠️ 重要提醒：</strong><br>
-            在 Azure 应用注册时，请确保添加重定向 URI：<code class="code-inline">http://localhost:53682/</code><br>
-            此 URI 必须与您在应用注册中配置的重定向 URI 完全一致，否则授权将失败。
+
+        <div>
+          <label for="redirectUri">Redirect URI</label>
+          <input id="redirectUri" type="url" autocomplete="off" spellcheck="false" value="http://localhost:53682/">
+          <p class="hint">必须在 Azure 应用的 Authentication 里添加。</p>
         </div>
-        
-        <button onclick="generateCommands()" data-dashlane-label="true" data-dashlane-rid="90191d7dba80ab6b" data-dashlane-classification="other">生成操作指令</button>
+      </div>
 
-        <div id="results" class="results" style="display: block;">
-            <div class="step">
-                <h2>第一步：账户授权</h2>
-                <p>点击下面的链接，登录您的 Microsoft 账户并授予权限。成功后，浏览器会跳转到一个无法访问的 <code class="code-inline">localhost</code> 页面，请从该页面的地址栏中复制 <code class="code-inline">code=</code> 之后的那一长串字符。</p>
-                <div class="command-box">
-                    <button class="copy-btn" onclick="copyToClipboard(&#39;authUrl&#39;)" data-dashlane-label="true" data-dashlane-rid="0f87369c631e4421" data-dashlane-classification="other">复制</button>
-                    <a id="authUrl" href="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=5606d60f-ee13-4bb3-94e6-a43a9abc0155&amp;scope=files.readwrite.all+offline_access&amp;response_type=code&amp;redirect_uri=http%3A%2F%2Flocalhost%3A53682%2F" target="_blank" style="color: #61afef; word-break: break-all;">https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=5606d60f-ee13-4bb3-94e6-a43a9abc0155&amp;scope=files.readwrite.all+offline_access&amp;response_type=code&amp;redirect_uri=http%3A%2F%2Flocalhost%3A53682%2F</a>
-                </div>
-            </div>
+      <label for="scope">Scope</label>
+      <input id="scope" type="text" autocomplete="off" spellcheck="false" value="files.readwrite.all offline_access">
+      <p class="hint">AList 挂载 OneDrive 一般需要 <code class="code-inline">offline_access</code>，这样才能获得 refresh token。</p>
 
-            <div class="step">
-                <h2>第二步：交换令牌</h2>
-                <p>请根据您的操作系统，复制下面的命令。将命令中 <code class="code-inline">[在此处粘贴从浏览器获得的CODE]</code> 替换为您上一步获得的 <code class="code-inline">code</code> 值，然后在您的电脑终端上执行。</p>
-                
-                <h3><img src="./OneDrive 令牌获取助手_files/linux.png" style="vertical-align: middle;"> For Linux / macOS / Windows (WSL)</h3>
-                <div class="command-box">
-                    <button class="copy-btn" onclick="copyToClipboard(&#39;curlLinux&#39;)" data-dashlane-label="true" data-dashlane-rid="fd67e7ca803bf149" data-dashlane-classification="other">复制</button>
-                    <pre id="curlLinux">curl -X POST -d 'client_id=5606d60f-ee13-4bb3-94e6-a43a9abc0155' \
--d 'client_secret=TKR8Q~-4aKvX~vSz2R3E_7CJjrQDGgT9DlqZsaLn' \
--d 'redirect_uri=http://localhost:53682/' \
--d 'grant_type=authorization_code' \
--d 'code=[在此处粘贴从浏览器获得的CODE]' \
-https://login.microsoftonline.com/common/oauth2/v2.0/token</pre>
-                </div>
+      <label for="authCode">授权后地址栏里的 code，可选</label>
+      <textarea id="authCode" spellcheck="false" placeholder="可以只粘贴 code，也可以粘贴整个 http://localhost:53682/?code=... 地址"></textarea>
 
-                <h3><img src="./OneDrive 令牌获取助手_files/windows-10.png" style="vertical-align: middle;"> For Windows (CMD 命令提示符)</h3>
-                <div class="command-box">
-                    <button class="copy-btn" onclick="copyToClipboard(&#39;curlWindows&#39;)" data-dashlane-label="true" data-dashlane-rid="4969454c0fd313d8" data-dashlane-classification="other">复制</button>
-                    <pre id="curlWindows">curl -X POST -d "client_id=5606d60f-ee13-4bb3-94e6-a43a9abc0155" ^
--d "client_secret=TKR8Q~-4aKvX~vSz2R3E_7CJjrQDGgT9DlqZsaLn" ^
--d "redirect_uri=http://localhost:53682/" ^
--d "grant_type=authorization_code" ^
--d "code=[在此处粘贴从浏览器获得的CODE]" ^
-https://login.microsoftonline.com/common/oauth2/v2.0/token</pre>
-                </div>
-            </div>
-            
-            <div class="step">
-                <h2>第三步：获取 Refresh Token</h2>
-                <p>执行命令后，您将看到一串 JSON 格式的返回信息。其中的 <code class="code-inline">"refresh_token": "..."</code> 的值就是您最终需要的刷新令牌！</p>
-                <div class="info">
-                    您现在已经集齐了挂载OneDrive所需的全部三个信息：<br>
-                    1. Client ID<br>
-                    2. Client Secret<br>
-                    3. Refresh Token
-                </div>
-            </div>
+      <div class="actions">
+        <button id="generateBtn" type="button">生成/刷新指令</button>
+        <button id="toggleSecretBtn" type="button" class="secondary">显示 Secret</button>
+        <button id="clearBtn" type="button" class="secondary">清空</button>
+      </div>
+
+      <div id="copied" class="success">已复制到剪贴板。</div>
+
+      <section id="results" class="results">
+        <h2>第一步：账户授权</h2>
+        <p>打开下面的链接登录 Microsoft 账户并授权。跳转到无法访问的 localhost 页面后，复制地址栏里的 <code class="code-inline">code=</code> 参数。</p>
+        <div class="command-box">
+          <button class="copy-btn" type="button" data-copy="authUrl">复制</button>
+          <a id="authUrl" href="#" target="_blank" rel="noreferrer"></a>
         </div>
-    <span id="1750033443284-0" data-dashlanecreated="true" style="color-scheme: initial; forced-color-adjust: initial; mask: initial; math-depth: initial; position: absolute; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: url(&quot;chrome-extension://fdjamakpfbbddfjaooikfcpapjohcfmg/content/injected/logo-autofill-unknown.svg&quot;) center center / contain no-repeat; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: none; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; bottom: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: pointer; cx: initial; cy: initial; d: initial; display: inline; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: 16px; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interpolate-size: initial; isolation: initial; left: 1316px; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: 16px; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: 1; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; right: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; top: 1570.18px; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-name: initial; visibility: visible; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: 16px; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: auto;"></span></div>
 
-    <script>
-        function generateCommands() {
-            const clientId = document.getElementById('clientId').value.trim();
-            const clientSecret = document.getElementById('clientSecret').value.trim();
+        <h2>第二步：交换令牌</h2>
+        <p>把授权 code 粘贴到上面的输入框后，命令会自动替换占位符。执行后返回 JSON，里面的 <code class="code-inline">refresh_token</code> 就是 AList 需要的新刷新令牌。</p>
 
-            if (!clientId || !clientSecret) {
-                alert("请输入 Client ID 和 Client Secret！");
-                return;
-            }
+        <h3>Linux / macOS / Windows WSL</h3>
+        <div class="command-box">
+          <button class="copy-btn" type="button" data-copy="curlUnix">复制</button>
+          <pre id="curlUnix"></pre>
+        </div>
 
-            const redirectUri = 'http://localhost:53682/';
-            
-            // 1. 构建授权 URL
-            const authUrl = new URL('https://login.microsoftonline.com/common/oauth2/v2.0/authorize');
-            authUrl.searchParams.append('client_id', clientId);
-            authUrl.searchParams.append('scope', 'files.readwrite.all offline_access');
-            authUrl.searchParams.append('response_type', 'code');
-            authUrl.searchParams.append('redirect_uri', redirectUri);
+        <h3>Windows CMD</h3>
+        <div class="command-box">
+          <button class="copy-btn" type="button" data-copy="curlWindows">复制</button>
+          <pre id="curlWindows"></pre>
+        </div>
 
-            const authUrlElement = document.getElementById('authUrl');
-            authUrlElement.href = authUrl.toString();
-            authUrlElement.textContent = authUrl.toString();
+        <h2>第三步：填回 AList</h2>
+        <div class="note">
+          在 AList 后台编辑 OneDrive 存储，更新 <code class="code-inline">client_secret</code> 和 <code class="code-inline">refresh_token</code>，保存后重试挂载。
+        </div>
+      </section>
+    </section>
+  </main>
 
-            // 2. 构建 Linux/macOS curl 命令
-            const curlLinux = `curl -X POST -d 'client_id=${clientId}' \\
--d 'client_secret=${clientSecret}' \\
--d 'redirect_uri=${redirectUri}' \\
--d 'grant_type=authorization_code' \\
--d 'code=[在此处粘贴从浏览器获得的CODE]' \\
-https://login.microsoftonline.com/common/oauth2/v2.0/token`;
-            document.getElementById('curlLinux').textContent = curlLinux;
+  <script>
+    const fields = {
+      clientId: document.getElementById("clientId"),
+      clientSecret: document.getElementById("clientSecret"),
+      tenant: document.getElementById("tenant"),
+      redirectUri: document.getElementById("redirectUri"),
+      scope: document.getElementById("scope"),
+      authCode: document.getElementById("authCode")
+    };
 
-            // 3. 构建 Windows CMD curl 命令
-            const curlWindows = `curl -X POST -d "client_id=${clientId}" ^
--d "client_secret=${clientSecret}" ^
--d "redirect_uri=${redirectUri}" ^
--d "grant_type=authorization_code" ^
--d "code=[在此处粘贴从浏览器获得的CODE]" ^
-https://login.microsoftonline.com/common/oauth2/v2.0/token`;
-            document.getElementById('curlWindows').textContent = curlWindows;
+    const results = document.getElementById("results");
+    const authUrlEl = document.getElementById("authUrl");
+    const curlUnixEl = document.getElementById("curlUnix");
+    const curlWindowsEl = document.getElementById("curlWindows");
+    const copiedEl = document.getElementById("copied");
 
-            // 显示结果
-            document.getElementById('results').style.display = 'block';
+    function singleQuoteShell(value) {
+      return "'" + value.replace(/'/g, "'\\''") + "'";
+    }
+
+    function extractCode(value) {
+      const raw = value.trim();
+      if (!raw) {
+        return "[在此处粘贴从浏览器获得的CODE]";
+      }
+
+      try {
+        const url = new URL(raw);
+        return url.searchParams.get("code") || raw;
+      } catch {
+        return raw;
+      }
+    }
+
+    function buildTokenUrl(tenant) {
+      const safeTenant = tenant.trim() || "common";
+      return `https://login.microsoftonline.com/${encodeURIComponent(safeTenant)}/oauth2/v2.0/token`;
+    }
+
+    function buildAuthorizeUrl(clientId, tenant, redirectUri, scope) {
+      const safeTenant = tenant.trim() || "common";
+      const url = new URL(`https://login.microsoftonline.com/${encodeURIComponent(safeTenant)}/oauth2/v2.0/authorize`);
+      url.searchParams.set("client_id", clientId);
+      url.searchParams.set("scope", scope);
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("redirect_uri", redirectUri);
+      return url.toString();
+    }
+
+    function generateCommands({ showAlert = true } = {}) {
+      const clientId = fields.clientId.value.trim();
+      const clientSecret = fields.clientSecret.value.trim();
+      const tenant = fields.tenant.value.trim() || "common";
+      const redirectUri = fields.redirectUri.value.trim();
+      const scope = fields.scope.value.trim();
+      const code = extractCode(fields.authCode.value);
+
+      if (!clientId || !clientSecret || !redirectUri || !scope) {
+        if (showAlert) {
+          alert("请至少填写 Client ID、Client Secret、Redirect URI 和 Scope。");
         }
+        results.style.display = "none";
+        return;
+      }
 
-        function copyToClipboard(elementId) {
-            let textToCopy;
-            const element = document.getElementById(elementId);
-            if (element.tagName === 'A') {
-                textToCopy = element.href;
-            } else {
-                textToCopy = element.textContent;
-            }
-            
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('已复制到剪贴板！');
-            }, (err) => {
-                alert('复制失败: ', err);
-            });
-        }
-    </script>
+      const authUrl = buildAuthorizeUrl(clientId, tenant, redirectUri, scope);
+      const tokenUrl = buildTokenUrl(tenant);
 
+      authUrlEl.href = authUrl;
+      authUrlEl.textContent = authUrl;
 
-</body><div id="kiss-transbox" style="font-size: 0px; width: 0px; height: 0px;"><template shadowrootmode="closed"><style></style><div class="KT-transbox KT-transbox_light"></div></template></div><div id="kiss-translator" style="font-size: 0px; width: 0px; height: 0px;"><template shadowrootmode="closed"><style><style data-emotion="kiss-translator" data-s=""></style><style data-emotion="kiss-translator-global" data-s=""></style></style><div><div class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 kiss-translator-ao8rxk" style="opacity: 1; position: fixed; left: 810px; top: 246px; z-index: 2147483647; display: none;"><div style="touch-action: none;"><div class="MuiBox-root kiss-translator-0" style="cursor: move;"><div class="MuiStack-root kiss-translator-1xanggh"><div class="MuiStack-root kiss-translator-1yae3jf"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium kiss-translator-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium kiss-translator-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="HomeIcon"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg><span class="MuiTouchRipple-root kiss-translator-w0pj6f"></span></button><div class="MuiTypography-root MuiTypography-body1 kiss-translator-1apmchk">KISS Translator v1.8.11</div></div><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium kiss-translator-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium kiss-translator-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CloseIcon"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg><span class="MuiTouchRipple-root kiss-translator-w0pj6f"></span></button></div><hr class="MuiDivider-root MuiDivider-fullWidth kiss-translator-39bbo6"></div></div><div></div></div><div style="opacity: 0.2; position: fixed; left: -20px; top: -20px; z-index: 2147483647; display: none;"><div style="touch-action: none;"><button class="MuiButtonBase-root MuiFab-root MuiFab-circular MuiFab-sizeSmall MuiFab-primary MuiFab-root MuiFab-circular MuiFab-sizeSmall MuiFab-primary kiss-translator-1mkalbv" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium kiss-translator-1in44b7" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="TranslateIcon"><path d="m12.87 15.07-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"></path></svg><span class="MuiTouchRipple-root kiss-translator-w0pj6f"></span></button></div><div></div></div></div></template></div><editor-card style="position:absolute;top:0px;left:0px;z-index:auto;display: block !important"><div dir="ltr" style="all: initial;"><div style="color-scheme: initial; forced-color-adjust: initial; mask: initial; math-depth: initial; position: absolute; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: 2147483647;"><link rel="stylesheet" href="chrome-extension://gpaiobkfhnonedkhhfjpmhdalgeoebfa/fonts/fabric-icons.css"><div style="all: initial;" data-dashlane-shadowhost="true"><template shadowrootmode="open"></template></div></div><div style="color-scheme: initial; forced-color-adjust: initial; mask: initial; math-depth: initial; position: absolute; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: 2147483647;"><link rel="stylesheet" href="chrome-extension://gpaiobkfhnonedkhhfjpmhdalgeoebfa/fonts/fabric-icons.css"></div><div id="editorNotificationContainer" style="color-scheme: initial; forced-color-adjust: initial; mask: initial; math-depth: initial; position: fixed; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-start-end-radius: initial; border-start-start-radius: initial; bottom: 0px; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-color: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: flex; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-direction: column-reverse; flex-wrap: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interpolate-size: initial; isolation: initial; left: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: 1em; margin-inline: initial; marker: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; right: 0px; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; top: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-name: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; z-index: 2147483647;"></div></div></editor-card></html>
+      curlUnixEl.textContent = [
+        "curl -X POST \\",
+        `  -d ${singleQuoteShell(`client_id=${clientId}`)} \\`,
+        `  -d ${singleQuoteShell(`client_secret=${clientSecret}`)} \\`,
+        `  -d ${singleQuoteShell(`redirect_uri=${redirectUri}`)} \\`,
+        "  -d 'grant_type=authorization_code' \\",
+        `  -d ${singleQuoteShell(`code=${code}`)} \\`,
+        tokenUrl
+      ].join("\n");
+
+      curlWindowsEl.textContent = [
+        "curl -X POST ^",
+        `  -d "client_id=${clientId}" ^`,
+        `  -d "client_secret=${clientSecret}" ^`,
+        `  -d "redirect_uri=${redirectUri}" ^`,
+        "  -d \"grant_type=authorization_code\" ^",
+        `  -d "code=${code}" ^`,
+        tokenUrl
+      ].join("\n");
+
+      results.style.display = "block";
+    }
+
+    async function copyElement(id) {
+      const element = document.getElementById(id);
+      const text = element.tagName === "A" ? element.href : element.textContent;
+      await navigator.clipboard.writeText(text);
+      copiedEl.style.display = "block";
+      window.clearTimeout(copyElement.timer);
+      copyElement.timer = window.setTimeout(() => {
+        copiedEl.style.display = "none";
+      }, 1800);
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", () => generateCommands());
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      fields.clientId.value = "";
+      fields.clientSecret.value = "";
+      fields.authCode.value = "";
+      generateCommands({ showAlert: false });
+    });
+
+    document.getElementById("toggleSecretBtn").addEventListener("click", (event) => {
+      const isHidden = fields.clientSecret.type === "password";
+      fields.clientSecret.type = isHidden ? "text" : "password";
+      event.currentTarget.textContent = isHidden ? "隐藏 Secret" : "显示 Secret";
+    });
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", () => copyElement(button.dataset.copy));
+    });
+
+    Object.values(fields).forEach((field) => {
+      field.addEventListener("input", () => generateCommands({ showAlert: false }));
+    });
+  </script>
+</body>
+</html>
